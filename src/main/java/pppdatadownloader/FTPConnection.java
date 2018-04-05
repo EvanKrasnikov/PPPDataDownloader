@@ -4,6 +4,7 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -29,25 +30,24 @@ public class FTPConnection {
             client.setFileType(FTP.FILE_STRUCTURE);
 
             String remoteFile = "/pub/products/1993/igr19930.sp3.Z";
-            Path localFile = Paths.get("C:/Downloads/1.sp3.Z");
             File file = new File("C:/TMP/2.sp3.Z");
 
-            OutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
+            OutputStream output = new BufferedOutputStream(new FileOutputStream(file));
             InputStream input = client.retrieveFileStream(remoteFile);
             byte[] buffer = new byte[4096];
             int bytesRead = -1;
 
             while((bytesRead = input.read(buffer)) != -1){
-                stream.write(buffer,0,bytesRead);
+                output.write(buffer,0,bytesRead);
             }
 
-            boolean succsess = client.completePendingCommand();
+            boolean success = client.completePendingCommand();
 
-            if (succsess){
+            if (success){
                 System.out.println("File was successfully downloaded!");
             }
 
-            stream.close();
+            output.close();
             input.close();
 
         } catch (IOException e) {
@@ -61,6 +61,18 @@ public class FTPConnection {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    private static void createFiles(){
+        Path path = Paths.get("C:/TMP/2.sp3.Z");
+
+        try {
+            if (Files.notExists(path)){
+                Files.createFile(path);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
