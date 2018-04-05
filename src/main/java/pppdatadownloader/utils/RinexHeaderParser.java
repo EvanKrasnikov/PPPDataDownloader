@@ -9,8 +9,11 @@ import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static pppdatadownloader.utils.DateConverter.getDate;
 
 public class RinexHeaderParser {
     private static final int BUFFER_SIZE = 4096;
@@ -41,10 +44,11 @@ public class RinexHeaderParser {
         Matcher matcher = pattern.matcher(match);
 
         if (matcher.find()){
-            rinex.setFyy(Integer.valueOf(matcher.group(1)));
-            rinex.setFmm(Integer.valueOf(matcher.group(2)));
-            rinex.setFdd(Integer.valueOf(matcher.group(3)));
-            System.out.println(matcher.groupCount() + " gc");
+            String[] dateElements = new String[6];
+            for (int i = 0; i < 6; i++) {
+                dateElements[i] = matcher.group(i+1);
+            }
+            rinex.setFirstObs(getDate(dateElements));
         } else {
             System.out.println("Find nothing!");
         }
@@ -56,10 +60,11 @@ public class RinexHeaderParser {
         Matcher matcher = pattern.matcher(match);
 
         if (matcher.find()){
-            rinex.setLyy(Integer.valueOf(matcher.group(1)));
-            rinex.setLmm(Integer.valueOf(matcher.group(2)));
-            rinex.setLdd(Integer.valueOf(matcher.group(3)));
-            System.out.println(matcher.groupCount() + " gc");
+            String[] dateElements = new String[6];
+            for (int i = 0; i < 6; i++) {
+                dateElements[i] = matcher.group(i+1);
+            }
+            rinex.setLastObs(getDate(dateElements));
         } else {
             System.out.println("Find nothing!");
         }
@@ -73,19 +78,9 @@ public class RinexHeaderParser {
             matcher = pattern.matcher(line);
             try {
                 if (matcher.find()){
-
                     String s = matcher.group(0);
-                    //System.out.println(s);
-
-                    if (s.equals(" TIME OF FIRST OBS")) {
-                        //System.out.println(s);
-                        readTimeOfFirstObs(line);
-                    }
-
-                    if (s.equals(" TIME OF LAST OBS")) {
-                        //System.out.println(s);
-                        readTimeOfLastObs(line);
-                    }
+                    if (s.equals(" TIME OF FIRST OBS")) readTimeOfFirstObs(line);
+                    if (s.equals(" TIME OF LAST OBS")) readTimeOfLastObs(line);
                 }
             } catch (Exception e){
                 System.err.println("No match!");
@@ -95,5 +90,12 @@ public class RinexHeaderParser {
 
     public void print(){
         System.out.println(rinex.toString());
+
+        try {
+            System.out.println("DayNum " + DateConverter.getDayNumber(rinex.getFirstObs()));
+            System.out.println("WeekNum " + DateConverter.getWeekNumberAndDay(rinex.getFirstObs()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 }
