@@ -1,39 +1,29 @@
 package pppdatadownloader;
 
+import java.util.Date;
+
 public class RinexHeader {
-    private int fyy;
-    private int fmm;
-    private int fdd;
-    private int lyy;
-    private int lmm;
-    private int ldd;
+    private Date firstObs;
+    private Date lastObs;
 
-    public void setFyy(int fyy) {
-        this.fyy = fyy;
+    public Date getFirstObs() {
+        return firstObs;
     }
 
-    public void setFmm(int fmm) {
-        this.fmm = fmm;
+    public void setFirstObs(Date firstObs) {
+        this.firstObs = firstObs;
     }
 
-    public void setFdd(int fdd) {
-        this.fdd = fdd;
+    public Date getLastObs() {
+        return lastObs;
     }
 
-    public void setLyy(int lyy) {
-        this.lyy = lyy;
-    }
-
-    public void setLmm(int lmm) {
-        this.lmm = lmm;
-    }
-
-    public void setLdd(int ldd) {
-        this.ldd = ldd;
+    public void setLastObs(Date lastObs) {
+        this.lastObs = lastObs;
     }
 
     @Override
     public String toString() {
-        return " " + fyy + " " + fmm + " " + fdd + " " + lyy + " " + lmm + " " + ldd ;
+        return " " + firstObs + " " + lastObs ;
     }
 }
