@@ -5,24 +5,46 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class DateConverter {
-    public static final String REFERENCE_DATE  = "19800101";
+    public static final String REFERENCE_DATE  = "19800106";
 
     private static Date getDate(String data) throws ParseException{
         return new SimpleDateFormat("yyyyMMdd").parse(data);
     }
 
+    public static Date getDate(String[] elements){
+        StringBuilder stringBuilder = new StringBuilder();
+        Date date = new Date();
+
+        for (String element: elements){
+            element = validate(element);
+            stringBuilder.append(element);
+        }
+
+        try {
+            date = new SimpleDateFormat("yyyyMMddhhmmss").parse(stringBuilder.toString());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
+
     //get day number from the beginning of the year
-    public static String getDayNumber(String data) throws ParseException{
-        return new SimpleDateFormat("D").format(getDate(data));
+    public static String getDayNumber(Date date) throws ParseException{
+        return new SimpleDateFormat("D").format(date);
     }
 
     //returns week number from 1980-01-01 and the day of the week
-    public static String getWeekNumberAndDay(String data) throws ParseException{
-        long difference = getDate(data).getTime() - getDate(REFERENCE_DATE).getTime();
+    public static String getWeekNumberAndDay(Date date) throws ParseException{
+        long difference = date.getTime() - getDate(REFERENCE_DATE).getTime();
         int days = (int)(difference/(24 * 60 * 60 * 1000));
         StringBuilder sb = new StringBuilder();
         sb.append(days / 7);
-        sb.append(days % 7);
+        sb.append(days % 7 - 1);
         return sb.toString();
+    }
+
+    private static String validate(String check){
+        if (check.length() == 1) return 0 + check;
+        else return check;
     }
 }
