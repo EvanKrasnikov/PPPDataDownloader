@@ -29,18 +29,16 @@ public class DateConverter {
     }
 
     //get day number from the beginning of the year
-    public static String getDayNumber(Date date) throws ParseException{
-        return new SimpleDateFormat("D").format(date);
+    public static int getDayNumber(Date date) throws ParseException{
+        String str = new SimpleDateFormat("D").format(date);
+        return Integer.valueOf(str);
     }
 
     //returns week number from 1980-01-01 and the day of the week
-    public static String getWeekNumberAndDay(Date date) throws ParseException{
+    public static int getWeekNumberAndDay(Date date) throws ParseException{
         long difference = date.getTime() - getDate(REFERENCE_DATE).getTime();
         int days = (int)(difference/(24 * 60 * 60 * 1000));
-        StringBuilder sb = new StringBuilder();
-        sb.append(days / 7);
-        sb.append(days % 7 - 1);
-        return sb.toString();
+        return (days / 7) + (days % 7 - 1);
     }
 
     private static String validate(String check){
