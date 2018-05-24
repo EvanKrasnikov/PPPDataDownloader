@@ -16,34 +16,25 @@ public class Connection {
         return connection;
     }
 
-    public void connect() {
-         connection = new FTPClient();
+    public void connect() throws IOException{
+        connection = new FTPClient();
 
-        try {
-            connection.connect(SERVER,PORT);
-            if(connection.isConnected()){
-                System.out.println("Client was connected!");
-            } else {
-                System.out.println("!!!!!");
-            }
-
-            connection.login(LOGIN,PASS);
-            connection.enterLocalPassiveMode();
-            connection.setFileType(FTP.FILE_STRUCTURE);
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        connection.connect(SERVER,PORT);
+        if(connection.isConnected()){
+            System.out.println("Client was connected!");
+        } else {
+            System.out.println("!!!!! Client wasn't connected!");
         }
+
+        connection.login(LOGIN,PASS);
+        connection.enterLocalPassiveMode();
+        connection.setFileType(FTP.FILE_STRUCTURE);
     }
 
-    public void disconnect(){
+    public void disconnect() throws IOException{
         if (connection.isConnected()){
-            try {
-                connection.logout();
-                connection.disconnect();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            connection.logout();
+            connection.disconnect();
         }
     }
 }
