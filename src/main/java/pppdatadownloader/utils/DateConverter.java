@@ -2,6 +2,7 @@ package pppdatadownloader.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -14,15 +15,14 @@ public class DateConverter {
                 .getTime();
     }
 
-    public static Date getDate(List<String> elements) throws ParseException{
-        StringBuilder stringBuilder = new StringBuilder();
-
+    public static List<Date> getDates(List<String> elements) throws ParseException{
+        List<Date> result = new ArrayList<>();
         for (String element: elements){
             element = validate(element);
-            stringBuilder.append(element);
+            result.add(new SimpleDateFormat("yyyyMMddhhmmss")
+                    .parse(element));
         }
-
-        return new SimpleDateFormat("yyyyMMddhhmmss").parse(stringBuilder.toString());
+        return result;
     }
 
     //get day number from the beginning of the year
