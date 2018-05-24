@@ -31,11 +31,18 @@ public class DateConverter {
         return Integer.valueOf(str);
     }
 
-    //returns week number from 1980-01-01 and the day of the week
+    //returns week number from 1980-01-06 and the day of the week
     public static int getWeekNumberAndDay(Date date) throws ParseException{
         long difference = date.getTime() - REFERENCE_TIME;
         int days = (int)(difference/(24 * 60 * 60 * 1000));
         return (days / 7) + (days % 7 - 1);
+    }
+
+    //returns week number from 1980-01-06
+    public static int getWeekNumber(Date date) throws ParseException{
+        long difference = date.getTime() - REFERENCE_TIME;
+        int days = (int)(difference/(24 * 60 * 60 * 1000));
+        return (days / 7);
     }
 
     private static String validate(String check){
