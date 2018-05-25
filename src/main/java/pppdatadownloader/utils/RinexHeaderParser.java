@@ -14,6 +14,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static pppdatadownloader.utils.DateConverter.getDate;
+import static pppdatadownloader.utils.DateConverter.getDayNumber;
+import static pppdatadownloader.utils.DateConverter.getWeekNumberAndDay;
 
 public class RinexHeaderParser {
     private static final int BUFFER_SIZE = 4096;
@@ -21,81 +23,69 @@ public class RinexHeaderParser {
     private RinexHeader rinex = new RinexHeader();
     private String[] headerLines;
 
-    public RinexHeaderParser(Path path) {
+    public RinexHeaderParser(Path path) throws IOException, ParseException {
         this.path = path;
-        try {
-            RandomAccessFile file = new RandomAccessFile(path.toFile(),"r");
-            FileChannel channel = file.getChannel();
-            ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-            Charset charset = Charset.forName("UTF-8");
-            channel.read(buffer);
-            buffer.flip();
-            CharBuffer charBuffer = charset.decode(buffer);
-            headerLines = charBuffer.toString().split("\\n");;
-            read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        RandomAccessFile file = new RandomAccessFile(path.toFile(),"r");
+        FileChannel channel = file.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+        Charset charset = Charset.forName("UTF-8");
+        channel.read(buffer);
+        buffer.flip();
+        CharBuffer charBuffer = charset.decode(buffer);
+        headerLines = charBuffer.toString().split("\\n");;
+        read();
     }
 
-    private void readTimeOfFirstObs(String match){
+    private void readTimeOfFirstObs(String match) throws ParseException{
         String regexp = "\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).\\d+\\s+\\w+\\s+TIME OF FIRST OBS";
         Pattern pattern = Pattern.compile(regexp);
         Matcher matcher = pattern.matcher(match);
 
         if (matcher.find()){
-            String[] dateElements = new String[6];
+            StringBuilder stringBuilder = new StringBuilder();
             for (int i = 0; i < 6; i++) {
-                dateElements[i] = matcher.group(i+1);
+                stringBuilder.append(matcher.group(i+1));
             }
-            rinex.setFirstObs(getDate(dateElements));
+            rinex.setFirstObs(getDate(stringBuilder.toString()));
         } else {
             System.out.println("Find nothing!");
         }
     }
 
-    private void readTimeOfLastObs(String match){
+    private void readTimeOfLastObs(String match) throws ParseException{
         String regexp = "\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).\\d+\\s+\\w+\\s+TIME OF LAST OBS";
         Pattern pattern = Pattern.compile(regexp);
         Matcher matcher = pattern.matcher(match);
 
         if (matcher.find()){
-            String[] dateElements = new String[6];
+            StringBuilder stringBuilder = new StringBuilder();
             for (int i = 0; i < 6; i++) {
-                dateElements[i] = matcher.group(i+1);
+                stringBuilder.append(matcher.group(i+1));
             }
-            rinex.setLastObs(getDate(dateElements));
+            rinex.setLastObs(getDate(stringBuilder.toString()));
         } else {
             System.out.println("Find nothing!");
         }
     }
 
-    private void read(){
+    private void read() throws ParseException{
         String regexp = "(\\s{1}[/#\\w]+)+$";
         Pattern pattern = Pattern.compile(regexp);
         Matcher matcher;
-        for (String line: headerLines){
+        for (String line : headerLines) {
             matcher = pattern.matcher(line);
-            try {
-                if (matcher.find()){
-                    String s = matcher.group(0);
-                    if (s.equals(" TIME OF FIRST OBS")) readTimeOfFirstObs(line);
-                    if (s.equals(" TIME OF LAST OBS")) readTimeOfLastObs(line);
-                }
-            } catch (Exception e){
-                System.err.println("No match!");
+
+            if (matcher.find()) {
+                String s = matcher.group(0);
+                if (s.equals(" TIME OF FIRST OBS")) readTimeOfFirstObs(line);
+                if (s.equals(" TIME OF LAST OBS")) readTimeOfLastObs(line);
             }
         }
     }
 
-    public void print(){
+    public void print() throws ParseException{
         System.out.println(rinex.toString());
-
-        try {
-            System.out.println("DayNum " + DateConverter.getDayNumber(rinex.getFirstObs()));
-            System.out.println("WeekNum " + DateConverter.getWeekNumberAndDay(rinex.getFirstObs()));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        System.out.println("DayNum " + getDayNumber(rinex.getFirstObs()));
+        System.out.println("WeekNum " + getWeekNumberAndDay(rinex.getFirstObs()));
     }
 }
