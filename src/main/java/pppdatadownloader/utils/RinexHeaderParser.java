@@ -2,13 +2,13 @@ package pppdatadownloader.utils;
 
 import pppdatadownloader.RinexHeader;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,14 +19,12 @@ import static pppdatadownloader.utils.DateConverter.getWeekNumberAndDay;
 
 public class RinexHeaderParser {
     private static final int BUFFER_SIZE = 4096;
-    private Path path;
     private RinexHeader rinex = new RinexHeader();
     private String[] headerLines;
 
-    public RinexHeaderParser(Path path) throws IOException, ParseException {
-        this.path = path;
-        RandomAccessFile file = new RandomAccessFile(path.toFile(),"r");
-        FileChannel channel = file.getChannel();
+    public void parse(File file) throws IOException, ParseException {
+        RandomAccessFile randomAccessFile = new RandomAccessFile(file,"r");
+        FileChannel channel = randomAccessFile.getChannel();
         ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
         Charset charset = Charset.forName("UTF-8");
         channel.read(buffer);
