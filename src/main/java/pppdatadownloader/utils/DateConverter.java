@@ -1,6 +1,6 @@
 package pppdatadownloader.utils;
 
-import pppdatadownloader.RinexHeader;
+import pppdatadownloader.rinex.RinexHeader;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

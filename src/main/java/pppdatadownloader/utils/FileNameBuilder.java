@@ -1,6 +1,6 @@
 package pppdatadownloader.utils;
 
-import pppdatadownloader.RinexHeader;
+import pppdatadownloader.rinex.RinexHeader;
 
 import java.util.ArrayList;
 import java.util.List;

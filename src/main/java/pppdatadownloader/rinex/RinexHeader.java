@@ -1,4 +1,4 @@
-package pppdatadownloader;
+package pppdatadownloader.rinex;
 
 import java.util.Date;
 
