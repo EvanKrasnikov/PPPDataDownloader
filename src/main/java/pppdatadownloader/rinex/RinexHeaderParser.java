@@ -1,6 +1,6 @@
-package pppdatadownloader.utils;
+package pppdatadownloader.rinex;
 
-import pppdatadownloader.RinexHeader;
+import pppdatadownloader.rinex.RinexHeader;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import static pppdatadownloader.utils.DateConverter.getDate;
 import static pppdatadownloader.utils.DateConverter.getDayNumber;
 import static pppdatadownloader.utils.DateConverter.getWeekNumberAndDay;
+import static pppdatadownloader.rinex.ParseMap.getParseInstruction;
 
 public class RinexHeaderParser {
     private static final int BUFFER_SIZE = 4096;
@@ -34,49 +35,36 @@ public class RinexHeaderParser {
         read();
     }
 
-    private void readTimeOfFirstObs(String match) throws ParseException{
-        String regexp = "\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).\\d+\\s+\\w+\\s+TIME OF FIRST OBS";
+    private String parseObs(String match, String mapKey){
+        String regexp = "\\s+([#/.\\w]+)";
         Pattern pattern = Pattern.compile(regexp);
         Matcher matcher = pattern.matcher(match);
+        StringBuilder stringBuilder = new StringBuilder();
 
         if (matcher.find()){
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < 6; i++) {
-                stringBuilder.append(matcher.group(i+1));
+            int[] expression = getParseInstruction(mapKey);
+            for (int i = 0; i < expression.length ; i++) {
+                if (i == expression[i]) stringBuilder.append(matcher.group(1));
             }
-            rinex.setFirstObs(getDate(stringBuilder.toString()));
         } else {
             System.out.println("Find nothing!");
         }
-    }
-
-    private void readTimeOfLastObs(String match) throws ParseException{
-        String regexp = "\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+).\\d+\\s+\\w+\\s+TIME OF LAST OBS";
-        Pattern pattern = Pattern.compile(regexp);
-        Matcher matcher = pattern.matcher(match);
-
-        if (matcher.find()){
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < 6; i++) {
-                stringBuilder.append(matcher.group(i+1));
-            }
-            rinex.setLastObs(getDate(stringBuilder.toString()));
-        } else {
-            System.out.println("Find nothing!");
-        }
+        return stringBuilder.toString();
     }
 
     private void read() throws ParseException{
-        String regexp = "(\\s{1}[/#\\w]+)+$";
+        String regexp = "[/#\\w]+(\\s{1}[/#\\w]+)+$";
         Pattern pattern = Pattern.compile(regexp);
         Matcher matcher;
         for (String line : headerLines) {
             matcher = pattern.matcher(line);
 
             if (matcher.find()) {
-                String s = matcher.group(0);
-                if (s.equals(" TIME OF FIRST OBS")) readTimeOfFirstObs(line);
-                if (s.equals(" TIME OF LAST OBS")) readTimeOfLastObs(line);
+                String data = parseObs(line, matcher.group(0));
+                switch (matcher.group(0)){
+                    case "TIME OF FIRST OBS" : rinex.setFirstObs(getDate(data));
+                    case "TIME OF LAST OBS" : rinex.setLastObs(getDate(data));
+                }
             }
         }
     }
