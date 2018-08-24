@@ -12,7 +12,11 @@ import static pppdatadownloader.utils.DateConverter.getWeekNumberAndDay;
 public class FileNameBuilder {
     private List<String> names = new ArrayList<>();
 
-    //returns list of filenames for each selected rinex
+    /**
+     * @param rinexes List of RINEX Headers, whose contain dates of first and last observation
+     * @return list of paths for downloading precise ephemeresis
+     * @throws Exception
+     */
     public FileNameBuilder addPreciseEphemeresis(List<RinexHeader> rinexes) throws Exception{
         for(RinexHeader rinex: rinexes){
             int weeks = getWeekNumber(rinex.getFirstObs());
