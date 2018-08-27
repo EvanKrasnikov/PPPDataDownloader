@@ -2,15 +2,17 @@ package pppdatadownloader.utils;
 
 import pppdatadownloader.rinex.RinexHeader;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-import static pppdatadownloader.utils.DateConverter.getDaysCount;
-import static pppdatadownloader.utils.DateConverter.getWeekNumber;
-import static pppdatadownloader.utils.DateConverter.getWeekNumberAndDay;
+import static pppdatadownloader.utils.DateConverter.*;
 
 public class FileNameBuilder {
-    private List<String> names = new ArrayList<>();
+    private static List<String> names = new LinkedList<>();
+
+    public static List<String> getNames() {
+        return names;
+    }
 
     /**
      * @param rinexes List of RINEX Headers, whose contain dates of first and last observation
