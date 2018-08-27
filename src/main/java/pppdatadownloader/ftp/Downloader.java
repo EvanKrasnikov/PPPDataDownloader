@@ -1,48 +1,50 @@
 package pppdatadownloader.ftp;
 
 import org.apache.commons.net.ftp.FTPClient;
+import pppdatadownloader.exception.FailedDownloadingException;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
-public class Downloader {
-    String remoteFile = "/pub/products/1993/igr19930.sp3.Z";
-    //File file = new File("C:/TMP/2.sp3.Z");
-    static Path path = Paths.get("C:/TMP/2.sp3.Z");
-    static String FOLDER = "C:/TMP/";
+public class Downloader implements Performable {
+    private List<String> remoteFiles;
+    private FTPClient client;
+    private String initialFolder;
 
-    public void oldDownload(FTPClient connection, File file) throws IOException{
-        OutputStream output = new BufferedOutputStream(new FileOutputStream(file));
-        InputStream input = connection.retrieveFileStream(remoteFile);
-        byte[] buffer = new byte[4096];
-        int bytesRead = -1;
+    public void perform(){
+        for(String remote: remoteFiles){
+            File local = new File(initialFolder + "/" + cropName(remote));
 
-        while((bytesRead = input.read(buffer)) != -1){
-            output.write(buffer,0,bytesRead);
-        }
+            try {
+                OutputStream output = new BufferedOutputStream(new FileOutputStream(local));
+                client.retrieveFile(remote, output);
 
-        boolean success = connection.completePendingCommand();
+                if (!client.completePendingCommand())
+                    throw new FailedDownloadingException(remote);
 
-        if (success){
-            System.out.println("File was successfully downloaded!");
-        }
-
-        input.close();
-        output.close();
-    }
-
-    public static void download(FTPClient connection, List<String> names) throws IOException{
-        for(String name: names){
-            File file = new File(FOLDER + name);
-            OutputStream output = new BufferedOutputStream(new FileOutputStream(file));
-            connection.retrieveFile(name, output);
+                output.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public boolean checkFiles(FTPClient connection, List<String> names){
-        return true;
+    private String cropName(String str){
+        return str.substring(str.lastIndexOf("/"));
+    }
+
+    public Downloader setRemoteFiles(List<String> remoteFiles) {
+        this.remoteFiles = remoteFiles;
+        return this;
+    }
+
+    public Downloader setClient(FTPClient client) {
+        this.client = client;
+        return this;
+    }
+
+    public Downloader setInitialFolder(String initialFolder) {
+        this.initialFolder = initialFolder;
+        return this;
     }
 }
