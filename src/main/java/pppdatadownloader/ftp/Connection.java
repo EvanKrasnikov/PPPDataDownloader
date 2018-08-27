@@ -2,33 +2,37 @@ package pppdatadownloader.ftp;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
+import pppdatadownloader.exception.ConnectionException;
+import pppdatadownloader.exception.MissingDataException;
 
 import java.io.*;
 
 public class Connection {
-    private static final String SERVER = "garner.ucsd.edu";
-    private static final String LOGIN = "anonymous";
-    private static final String PASS = "anon@gmail.com";
-    private static final int PORT = 21;
+    private String server;
+    private String login;
+    private String pass;
+    private int port;
     private FTPClient connection;
 
-    public FTPClient getConnection(){
-        return connection;
-    }
-
-    public void connect() throws IOException{
+    public Connection connect() throws IOException{
         connection = new FTPClient();
 
-        connection.connect(SERVER,PORT);
-        if(connection.isConnected()){
-            System.out.println("Client was connected!");
-        } else {
-            System.out.println("!!!!! Client wasn't connected!");
-        }
+        if (server == null || login == null || pass == null || port == 0)
+            throw new MissingDataException("Missing data at " + Connection.class);
 
-        connection.login(LOGIN,PASS);
+        connection.connect(server,port);
+
+        if(!connection.isConnected())
+            throw new ConnectionException(server);
+
+        connection.login(login,pass);
         connection.enterLocalPassiveMode();
         connection.setFileType(FTP.FILE_STRUCTURE);
+        return this;
+    }
+
+    public void perform(Performable performable){
+        performable.perform();
     }
 
     public void disconnect() throws IOException{
@@ -37,4 +41,29 @@ public class Connection {
             connection.disconnect();
         }
     }
+
+    public Connection setServer(String server) {
+        this.server = server;
+        return this;
+    }
+
+    public Connection setLogin(String login) {
+        this.login = login;
+        return this;
+    }
+
+    public Connection setPass(String pass) {
+        this.pass = pass;
+        return this;
+    }
+
+    public Connection setPort(int port) {
+        this.port = port;
+        return this;
+    }
+
+    public FTPClient getConnection(){
+        return connection;
+    }
+
 }
